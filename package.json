@@ -1,0 +1,15 @@
+{
+  "name": "ai-code-explainer",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:web": "yarn workspace web dev",
+    "dev:server": "yarn workspace server dev",
+    "build": "yarn workspace web build"
+  },
+  "dependencies": {
+    "openai": "^6.10.0"
+  }
+}
