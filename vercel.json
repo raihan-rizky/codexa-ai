@@ -1,6 +1,11 @@
 {
   "installCommand": "yarn install",
   "buildCommand": "yarn build",
-  "outputDirectory": "dist",
-  "framework": null
+  "outputDirectory": "apps/web/dist",
+  "framework": null,
+  "functions": {
+    "api/*.js": {
+      "runtime": "@vercel/node@3"
+    }
+  }
 }
