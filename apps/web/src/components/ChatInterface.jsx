@@ -465,7 +465,7 @@ const ChatInterface = () => {
             </div>
           </div>
 
-          {/* User Info */}
+          {/* User Info 
           <div className="mt-auto pt-4 border-t border-[#254632]">
             <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 cursor-pointer transition-colors">
               <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#36e27b] to-[#1b3224] border border-[#254632]"></div>
@@ -480,6 +480,7 @@ const ChatInterface = () => {
               </span>
             </div>
           </div>
+          */}
         </div>
       </aside>
 
