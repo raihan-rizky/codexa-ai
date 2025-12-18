@@ -1,10 +1,4 @@
-import path from "path";
-import { fileURLToPath } from "url";
-import dotenv from "dotenv";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-process.chdir(__dirname);
-dotenv.config();
+import "./env_setup.js";
 import express from "express";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
