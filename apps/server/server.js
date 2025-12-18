@@ -77,31 +77,24 @@ const app = express();
 console.log("[SERVER] ✓ Express app created");
 
 console.log("\n[MIDDLEWARE] 🔧 Setting up middleware...");
-// Security Middleware
 app.use((req, res, next) => {
-  if (req.method === "OPTIONS") return res.sendStatus(204);
+  res.header(
+    "Access-Control-Allow-Origin",
+    "https://codexplain.up.railway.app"
+  );
+  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+
   next();
 });
-const allowedOrigins = [
-  process.env.FRONTEND_URL, // https://codexplain.up.railway.app
-  "http://localhost:5173", // dev
-].filter(Boolean);
-const corsOptions = {
-  origin: allowedOrigins,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: false,
-};
 
 app.use(helmet());
 console.log("[MIDDLEWARE] ✓ Helmet (security headers) configured");
 
-app.use(cors(corsOptions));
-app.options(/.*/, cors(corsOptions));
-
-console.log("[MIDDLEWARE] ✓ CORS configured for:", corsOptions.origin);
-
-// handle preflight for all routes
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, //15 menit window
   max: 100, // maksimal 100 request per IP adress
