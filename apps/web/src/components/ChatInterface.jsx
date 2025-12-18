@@ -74,7 +74,7 @@ const ChatInterface = () => {
     };
   }, []);
 
-  // Send message to active chat
+  // Send message to active chat with streaming
   async function onSend(e) {
     e?.preventDefault?.();
     if (!inputValue.trim() || sending || !activeChat?.id) return;
@@ -82,55 +82,106 @@ const ChatInterface = () => {
     const session_key = getSessionKey();
     const userText = inputValue.trim();
     const title = userText.split("\n")[0];
-    try {
-      setSending(true);
-      setError("");
-      setInputValue("");
 
-      // Optimistic user message
-      const tempUser = {
-        id: `temp-${Date.now()}`,
+    setSending(true);
+    setError("");
+    setInputValue("");
+
+    // Add optimistic user message
+    const tempUserId = `temp-user-${Date.now()}`;
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: tempUserId,
         role: "user",
         content: userText,
         created_at: new Date().toISOString(),
-      };
-      setMessages((prev) => [...prev, tempUser]);
+      },
+    ]);
 
-      console.log("[ChatInterface] Sending to /chat/send:", {
-        session_key,
-        chat_id: activeChat.id,
-        message: userText,
-        mode,
-        language,
-        title,
-      });
+    // Add placeholder for AI response
+    const tempAiId = `temp-ai-${Date.now()}`;
+    setMessages((prev) => [
+      ...prev,
+      { id: tempAiId, role: "assistant", content: "", isStreaming: true },
+    ]);
 
-      // Send to backend - it handles LLM/RAG calls and returns both messages
-      const data = await postJSON("/chat/send", {
-        session_key,
-        chat_id: activeChat.id,
-        message: userText,
-        mode,
-        language,
-        title,
-      });
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/chat/send-stream`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            session_key,
+            chat_id: activeChat.id,
+            message: userText,
+            mode,
+            language,
+            title,
+          }),
+        }
+      );
 
-      console.log("[ChatInterface] /chat/send response:", data);
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let fullText = ""; // Start empty - UI shows loading dots when empty
 
-      // Replace temp message with actual messages from server
-      setMessages((prev) => {
-        const withoutTemp = prev.filter((m) => m.id !== tempUser.id);
-        return [...withoutTemp, ...(data.messages || [])];
-      });
+      while (true) {
+        setSending(false);
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split("\n");
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              if (data.type === "chunk") {
+                fullText += data.content;
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === tempAiId ? { ...m, content: fullText } : m
+                  )
+                );
+              } else if (data.type === "done") {
+                // Replace temp messages with final server messages
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === tempAiId
+                      ? { ...data.message, isStreaming: false }
+                      : m
+                  )
+                );
+              } else if (data.type === "user_saved") {
+                setMessages((prev) =>
+                  prev.map((m) => (m.id === tempUserId ? data.message : m))
+                );
+              } else if (data.type === "error") {
+                throw new Error(data.error);
+              }
+            } catch (parseErr) {
+              // Skip invalid JSON lines
+            }
+          }
+        }
+      }
     } catch (error) {
-      console.error("[ChatInterface] Error sending message:", error);
-      const errorMessage = {
-        id: `error-${Date.now()}`,
-        role: "assistant",
-        content: `Error: ${error.message}. Please try again.`,
-        isError: true,
-      };
-      setMessages((prev) => [...prev, errorMessage]);
+      console.error("[ChatInterface] Stream error:", error);
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === tempAiId
+            ? {
+                ...m,
+                content: `Error: ${error.message}`,
+                isError: true,
+                isStreaming: false,
+              }
+            : m
+        )
+      );
       setError(error.message);
     } finally {
       setSending(false);
@@ -650,11 +701,18 @@ const ChatInterface = () => {
                       <pre className="text-sm font-mono leading-relaxed whitespace-pre-wrap break-words">
                         {message.content}
                       </pre>
-                    ) : (
+                    ) : message.content ? (
                       <div className="prose prose-invert max-w-none text-sm text-white/90">
                         <Markdown remarkPlugins={[remarkGfm]}>
                           {message.content}
                         </Markdown>
+                      </div>
+                    ) : (
+                      // Loading dots when AI content is empty
+                      <div className="flex items-center gap-1">
+                        <div className="w-1.5 h-1.5 bg-white/40 rounded-full animate-bounce"></div>
+                        <div className="w-1.5 h-1.5 bg-white/40 rounded-full animate-bounce [animation-delay:0.2s]"></div>
+                        <div className="w-1.5 h-1.5 bg-white/40 rounded-full animate-bounce [animation-delay:0.4s]"></div>
                       </div>
                     )}
                   </div>
@@ -678,7 +736,7 @@ const ChatInterface = () => {
               </div>
             ))}
 
-            {/* Loading indicator */}
+            {/* Loading indicator 
             {sending && (
               <div className="flex gap-4">
                 <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#36e27b]/10 flex items-center justify-center text-[#36e27b] mt-1">
@@ -693,6 +751,7 @@ const ChatInterface = () => {
                 </div>
               </div>
             )}
+              */}
 
             <div ref={messagesEndRef} className="h-4"></div>
           </div>

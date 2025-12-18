@@ -62,11 +62,11 @@ const LandingPage = () => {
                   </span>
                 </div>
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-black leading-[1.1] tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-white to-white/70">
-                  Understand Any Research in Seconds.
+                  Understand Any Code in Seconds.
                 </h1>
                 <h2 className="text-base md:text-lg font-normal text-white/70 max-w-xl mx-auto lg:mx-0">
-                  Find relevant papers and get clear, instant
-                  explanations—powered by AI.
+                  Type your code and get clear, instant explanations—powered by
+                  AI.
                 </h2>
               </div>
               <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">

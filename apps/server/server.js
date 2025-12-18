@@ -436,6 +436,113 @@ app.post("/api/chat/send", async (req, res) => {
   }
 });
 
+// Streaming endpoint for chat messages
+app.post("/api/chat/send-stream", async (req, res) => {
+  try {
+    console.log("[STREAM] /api/chat/send-stream hit");
+    const {
+      session_key,
+      chat_id,
+      message,
+      mode,
+      language,
+      title = "New chat",
+    } = req.body;
+
+    if (!session_key || !chat_id || !message) {
+      return res
+        .status(400)
+        .json({ error: "session_key, chat_id, message are required" });
+    }
+
+    // Set SSE headers
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.setHeader("Access-Control-Allow-Origin", "*");
+
+    const session = await ensureSession(session_key);
+
+    // Save user message
+    const userMsg = await addMessage({
+      sessionId: session.id,
+      chatId: chat_id,
+      role: "user",
+      content: message,
+      meta: { mode, language },
+      title: title,
+    });
+
+    // Send user message confirmation
+    res.write(
+      `data: ${JSON.stringify({ type: "user_saved", message: userMsg })}\n\n`
+    );
+
+    let fullAiText = "";
+
+    if (mode === "rag") {
+      // Stream RAG response
+      const ragContext = await queryRAG(message);
+      fullAiText = ragContext.answer;
+
+      // Simulate streaming for RAG (since queryRAG doesn't support streaming yet)
+      const words = fullAiText.split(" ");
+      for (let i = 0; i < words.length; i++) {
+        const chunk = words[i] + (i < words.length - 1 ? " " : "");
+        res.write(
+          `data: ${JSON.stringify({ type: "chunk", content: chunk })}\n\n`
+        );
+        await new Promise((resolve) => setTimeout(resolve, 20));
+      }
+    } else {
+      // Stream code explanation using OpenAI stream
+      const stream = await client.chat.completions.create({
+        model: "meta-llama/Llama-3.3-70B-Instruct",
+        max_tokens: 1024,
+        stream: true,
+        messages: [
+          {
+            role: "system",
+            content: `You are a helpful code assistant. Explain the following ${
+              language || "code"
+            } code in a clear, educational manner. Focus on what the code does, how it works, and any important concepts.`,
+          },
+          { role: "user", content: message },
+        ],
+      });
+
+      for await (const chunk of stream) {
+        const content = chunk.choices[0]?.delta?.content || "";
+        if (content) {
+          fullAiText += content;
+          res.write(`data: ${JSON.stringify({ type: "chunk", content })}\n\n`);
+        }
+      }
+    }
+
+    // Save assistant message
+    const assistantMsg = await addMessage({
+      sessionId: session.id,
+      chatId: chat_id,
+      role: "assistant",
+      content: fullAiText,
+      meta: { mode, language },
+    });
+
+    // Send completion
+    res.write(
+      `data: ${JSON.stringify({ type: "done", message: assistantMsg })}\n\n`
+    );
+    res.end();
+  } catch (err) {
+    console.error("Chat Stream Error:", err);
+    res.write(
+      `data: ${JSON.stringify({ type: "error", error: err.message })}\n\n`
+    );
+    res.end();
+  }
+});
+
 const PORT = process.env.PORT || 3002;
 
 app.listen(PORT, () => {
