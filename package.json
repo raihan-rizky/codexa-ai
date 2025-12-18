@@ -13,9 +13,5 @@
     "build:server": "echo 'No build step needed for server'",
     "start:web": "yarn workspace web start",
     "start:server": "yarn workspace server start"
-  },
-  "dependencies": {
-    "react-loading-indicators": "^1.0.1",
-    "react-loading-skeleton": "^3.5.0"
   }
 }
