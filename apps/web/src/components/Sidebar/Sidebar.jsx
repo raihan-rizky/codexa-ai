@@ -58,6 +58,7 @@ const Sidebar = ({
 }) => {
   const fileInputRef = useRef(null);
   const [isCreatingChat, setIsCreatingChat] = useState(false);
+  const [isSwitchingChat, setIsSwitchingChat] = useState(false);
 
   // Handle new chat with loading state
   const handleNewChatClick = async () => {
@@ -69,14 +70,26 @@ const Sidebar = ({
     }
   };
 
+  // Handle switching to another chat with loading state
+  const handleOpenChatClick = async (chat) => {
+    if (activeChat?.id === chat.id) return; // Already on this chat
+    setIsSwitchingChat(true);
+    try {
+      await onOpenChat(chat);
+    } finally {
+      setIsSwitchingChat(false);
+    }
+  };
+
   return (
     <>
-      {/* Loading Popup */}
+      {/* Loading Popups */}
       <LoadingPopup isVisible={isCreatingChat} message="Creating new chat..." />
       <LoadingPopup
         isVisible={isUploading}
         message="Uploading and processing code..."
       />
+      <LoadingPopup isVisible={isSwitchingChat} message="Loading chat..." />
       <aside
         className={`${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -194,7 +207,7 @@ const Sidebar = ({
                   chats.map((chat) => (
                     <div
                       key={chat.id}
-                      onClick={() => onOpenChat(chat)}
+                      onClick={() => handleOpenChatClick(chat)}
                       className={`flex items-center gap-3 px-3 py-2 rounded-lg text-left text-sm font-medium transition-colors group cursor-pointer ${
                         activeChat?.id === chat.id
                           ? "bg-white/10 text-white border border-[#36e27b]/30"

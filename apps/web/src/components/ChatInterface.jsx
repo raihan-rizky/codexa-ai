@@ -656,12 +656,21 @@ const ChatInterface = () => {
                 }
                 disabled={sending}
               />
+              {/* Hidden file input for upload button */}
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileUpload}
+                accept=".py,.js,.jsx,.cpp"
+                className="hidden"
+              />
               <div className="flex items-center justify-between px-2 pb-1">
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="p-2 rounded-lg hover:bg-white/10 text-white/60 hover:text-[#36e27b] transition-colors"
+                    disabled={isUploading}
+                    className="p-2 rounded-lg hover:bg-white/10 text-white/60 hover:text-[#36e27b] transition-colors disabled:opacity-50"
                     title="Upload Code"
                   >
                     <span className="material-symbols-outlined text-[20px]">
