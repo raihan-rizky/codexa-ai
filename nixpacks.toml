@@ -1,0 +1,8 @@
+[phases.setup]
+nixPkgs = ["nodejs_20", "yarn"]
+
+[phases.install]
+cmds = ["yarn install --immutable"]
+
+[phases.build]
+cmds = ["yarn workspace web build"]
