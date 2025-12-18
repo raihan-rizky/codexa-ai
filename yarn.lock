@@ -643,7 +643,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@langchain/langgraph-sdk@npm:~1.3.0":
+"@langchain/langgraph-sdk@npm:~1.3.1":
   version: 1.3.1
   resolution: "@langchain/langgraph-sdk@npm:1.3.1"
   dependencies:
@@ -666,11 +666,11 @@ __metadata:
   linkType: hard
 
 "@langchain/langgraph@npm:^1.0.0":
-  version: 1.0.5
-  resolution: "@langchain/langgraph@npm:1.0.5"
+  version: 1.0.7
+  resolution: "@langchain/langgraph@npm:1.0.7"
   dependencies:
     "@langchain/langgraph-checkpoint": "npm:^1.0.0"
-    "@langchain/langgraph-sdk": "npm:~1.3.0"
+    "@langchain/langgraph-sdk": "npm:~1.3.1"
     uuid: "npm:^10.0.0"
   peerDependencies:
     "@langchain/core": ^1.0.1
@@ -679,7 +679,7 @@ __metadata:
   peerDependenciesMeta:
     zod-to-json-schema:
       optional: true
-  checksum: 10c0/ffd0e80b04c20a743009629e2f298dd82457f31d47a0e2e841e07e8f10244a1831e6eac7a4d5dddd779104a5e9a8a958b2b420e2223a977ba6a64e8e895996c8
+  checksum: 10c0/ca2b31c1ea6a9351bacd545cecf4ebfb9fcccc6827bbdc7dfa4fe1a7d235d3e3b4203f8274dde115cc8c17a918fce7b0bf2310afa460b74f60f01b66de9ba3f1
   languageName: node
   linkType: hard
 
@@ -2024,11 +2024,11 @@ __metadata:
   linkType: hard
 
 "baseline-browser-mapping@npm:^2.9.0":
-  version: 2.9.8
-  resolution: "baseline-browser-mapping@npm:2.9.8"
+  version: 2.9.10
+  resolution: "baseline-browser-mapping@npm:2.9.10"
   bin:
     baseline-browser-mapping: dist/cli.js
-  checksum: 10c0/73d8e4aa80345833c5c73d43d8fff87dca67883ad3f8edb8ed13cf0da60a5210816fea868b532016d60ac9f8734946cbe5fcce867113a73c9b2f8b0dbfd1e33e
+  checksum: 10c0/e8021a03d7ec00583c83054993a7192dae5065b25de2b2763420116553aeff8297e5ad643c94549f2310f436df0511ade80c7a889251c03af11e68eecbff1fae
   languageName: node
   linkType: hard
 
@@ -6138,20 +6138,20 @@ __metadata:
   linkType: hard
 
 "react-router-dom@npm:^7.10.1":
-  version: 7.10.1
-  resolution: "react-router-dom@npm:7.10.1"
+  version: 7.11.0
+  resolution: "react-router-dom@npm:7.11.0"
   dependencies:
-    react-router: "npm:7.10.1"
+    react-router: "npm:7.11.0"
   peerDependencies:
     react: ">=18"
     react-dom: ">=18"
-  checksum: 10c0/e0d0f8176974567321ae6eda319064e4207339b930422cc5efb4e39214e065a698f3c706a9fdb41a4e6e0a1f79c91fe1122a5a960eb30430aaed34a658e336ed
+  checksum: 10c0/0e8061fe0ef7915cc411dd92f5f41109f6343b6abef36571b08ff231365bf61f52364bea128d1c964e9b8eb19426c9bd21923df0b3e1bb993d21bd2b7440fb49
   languageName: node
   linkType: hard
 
-"react-router@npm:7.10.1":
-  version: 7.10.1
-  resolution: "react-router@npm:7.10.1"
+"react-router@npm:7.11.0":
+  version: 7.11.0
+  resolution: "react-router@npm:7.11.0"
   dependencies:
     cookie: "npm:^1.0.1"
     set-cookie-parser: "npm:^2.6.0"
@@ -6161,7 +6161,7 @@ __metadata:
   peerDependenciesMeta:
     react-dom:
       optional: true
-  checksum: 10c0/e114a319603ccf0394f616f954ee3f53bec04636a2f13383b1e941b8fa6c1c64b71b60527e3db8e7f971dcfaaeb9a82bd7c2ddd884a718694e589403e6975d52
+  checksum: 10c0/eb3693d63d1c52221a3449de5db170e2fa9e00536b011998b17f8a277f8b5e89b752d104dbbeb4ee3d474f8e4570167db00293b4510f63277e5e6658c5dab22b
   languageName: node
   linkType: hard
 
