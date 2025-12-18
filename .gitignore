@@ -4,3 +4,4 @@ node_modules/
 dist/
 .vercel/
 .yarn\install-state.gz
+yarn.lock
