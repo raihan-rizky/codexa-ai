@@ -1,4 +1,4 @@
-import { handleCors } from "../../_lib/cors.js";
+import { handleCors } from "../_lib/cors.js";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
