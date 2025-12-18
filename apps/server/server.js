@@ -65,8 +65,12 @@ app.use((req, res, next) => {
   if (req.method === "OPTIONS") return res.sendStatus(204);
   next();
 });
+const allowedOrigins = [
+  process.env.FRONTEND_URL, // https://codexplain.up.railway.app
+  "http://localhost:5173", // dev
+].filter(Boolean);
 const corsOptions = {
-  origin: ["https://codexplain.up.railway.app"],
+  origin: allowedOrigins,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: false,
