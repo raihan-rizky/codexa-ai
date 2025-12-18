@@ -23,5 +23,8 @@
   },
   "resolutions": {
     "sharp": "0.34.5"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.2"
   }
 }
