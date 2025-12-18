@@ -6,7 +6,7 @@ const Navbar = () => {
       <div className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto w-full">
         <div className="flex items-center w-40 h-10 gap-3">
           <img
-            src="../../public/images/logo-image.png"
+            src="images/logo-image.png"
             width="130"
             height="128"
             alt="logo-image"
