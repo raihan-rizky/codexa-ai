@@ -101,7 +101,6 @@ const client = new OpenAI({
 app.post("/api/explain-code", async (request, response) => {
   // tombol explain code, ngirim data (post) ke server side dari client side
   // "async () => {} "" ==> callback function, bakal otomatis dieksekusi abis pencet tombol explain code
-
   try {
     const { code, language } = request.body;
 
@@ -150,20 +149,6 @@ Keep it concise and beginner-friendly.`,
     response.status(500).json({ error: "Server error", details: err.message });
   }
 });
-
-/* const checkNebiusConnection = async () => {
-  try {
-    console.log("Checking Nebius API connection...");
-    const models = await client.models.list();
-    console.log("Connection successful! Available models:");
-    models.data.forEach((m) => console.log(`- ${m.id}`));
-  } catch (error) {
-    console.error("Error connecting to Nebius API:", error.message);
-  }
-};
-
-checkNebiusConnection();
- */
 
 // ============ RAG Endpoints ============
 

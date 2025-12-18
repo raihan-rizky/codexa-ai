@@ -30,7 +30,7 @@ const ChatInterface = () => {
   const [title, setTitle] = useState([]);
   console.log("uploadedFiles", uploadedFiles);
   console.log("title", title);
-  // Init: load session + chats + activeChat + messages
+  // Init: load session + chats + activeChat + messages + list documents
   useEffect(() => {
     let mounted = true;
     (async () => {
