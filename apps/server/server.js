@@ -510,6 +510,7 @@ app.post("/api/chat/send-stream", async (req, res) => {
     }
 
     // Set SSE headers
+    res.header("Vary", "Origin");
     res.setHeader("Content-Type", "text/event-stream");
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
@@ -517,7 +518,6 @@ app.post("/api/chat/send-stream", async (req, res) => {
       "Access-Control-Allow-Origin",
       "https://codexplain.up.railway.app"
     );
-    res.setHeader("Access-Control-Allow-Credentials", "true");
 
     const session = await ensureSession(session_key);
 
@@ -615,7 +615,7 @@ console.log("  DELETE /api/chat/:chatId");
 console.log("  POST /api/chat/send");
 console.log("  POST /api/chat/send-stream");
 
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 8080;
 
 console.log("\n[SERVER] 🌐 Starting HTTP server...");
 app.listen(PORT, "0.0.0.0", () => {
