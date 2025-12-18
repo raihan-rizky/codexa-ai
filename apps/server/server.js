@@ -1,4 +1,10 @@
-import "dotenv/config";
+import path from "path";
+import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+process.chdir(__dirname);
+dotenv.config();
 import express from "express";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
@@ -54,7 +60,21 @@ const app = express();
 app.use(helmet());
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000", //server hanya bisa diakses oleh spesifik domain atau url
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        process.env.FRONTEND_URL,
+        "http://localhost:3000",
+        "http://localhost:5173",
+      ];
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        console.warn(`Blocked by CORS: ${origin}`);
+        callback(null, false); // Don't return error object to avoid leaking info, just block
+      }
+    },
     credentials: true,
   })
 );

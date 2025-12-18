@@ -11,7 +11,7 @@
     "build": "yarn workspace web build",
     "build:web": "yarn workspace web build",
     "build:server": "echo 'No build step needed for server'",
-    "start:web": "yarn workspace web start",
-    "start:server": "yarn workspace server start"
+    "start:web": "node apps/web/start.js",
+    "start:server": "node apps/server/server.js"
   }
 }

@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "start": "npx serve dist -l $PORT"
+    "start": "node start.js"
   },
   "dependencies": {
     "prop-types": "^15.8.1",
