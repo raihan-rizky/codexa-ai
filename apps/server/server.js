@@ -520,6 +520,16 @@ app.post("/api/chat/send-stream", async (req, res) => {
     }
 
     const session = await ensureSession(session_key);
+    const history = await getMessages(chat_id);
+    const conversationHistory = history.slice(-10).map((msg) => ({
+      role: msg.role,
+      content: msg.content,
+    }));
+    console.log(
+      "conversation history exist :",
+      conversationHistory ? "yes" : "no"
+    );
+    console.log("conversation history content", conversationHistory);
 
     // Save user message
     const userMsg = await addMessage({
@@ -540,7 +550,7 @@ app.post("/api/chat/send-stream", async (req, res) => {
 
     if (mode === "rag") {
       // Stream RAG response
-      const ragContext = await queryRAG(message);
+      const ragContext = await queryRAG(message, chat_id);
       fullAiText = ragContext.answer;
 
       // Simulate streaming for RAG (since queryRAG doesn't support streaming yet)
@@ -572,8 +582,10 @@ Rules:
   respond exactly with: "It is outside my information, please ask something else".
 - Do NOT add extra explanations when rejecting.
 - When explaining code, break down each syntax and explain what it does.
-- Keep explanations concise, clear, and beginner-friendly.`,
+- Keep explanations concise, clear, and beginner-friendly.
+- ALWAYS answer with example code`,
           },
+          ...conversationHistory,
           { role: "user", content: message },
         ],
       });

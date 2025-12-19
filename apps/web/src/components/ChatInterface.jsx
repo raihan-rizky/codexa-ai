@@ -192,7 +192,8 @@ const ChatInterface = () => {
             : m
         )
       );
-      setError(error.message);
+      // Show error popup with retry option
+      showError(`Failed to send message: ${error.message}`, () => onSend());
     } finally {
       setSending(false);
     }

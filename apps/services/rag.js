@@ -2,7 +2,7 @@ import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import OpenAI from "openai";
 import { pipeline } from "@xenova/transformers";
 import { supabase } from "../db/supabase.js";
-
+import { getMessages } from "./chat_services.js";
 console.log("[RAG] 🧠 Initializing RAG service...");
 
 // Initialize Nebius OpenAI-compatible client for embeddings and LLM
@@ -198,7 +198,7 @@ export async function uploadDocument(codeBuffer, filename, session_id) {
 /**
  * Query documents using similarity search and generate response
  */
-export async function queryRAG(queryText, topK = 5) {
+export async function queryRAG(queryText, chat_id, topK = 5) {
   console.log("\n========================================");
   console.log("[QUERY] Starting RAG query...");
   console.log(`[QUERY] Question: ${queryText}`);
@@ -236,6 +236,13 @@ export async function queryRAG(queryText, topK = 5) {
     );
   });
 
+  //add previous chat for more context
+  const history = await getMessages(chat_id);
+  const conversationHistory = history.slice(-10).map((msg) => ({
+    role: msg.role,
+    content: msg.content,
+  }));
+
   // Build context from retrieved documents
   const context = documents
     .map((doc, i) => `[Source ${i + 1}]: ${doc.content}`)
@@ -264,17 +271,23 @@ Your task:
 
 Rules:
 - If the answer cannot be found in the Context, respond exactly with:
-  "Informasi tersebut tidak tersedia dalam konteks yang diberikan."
+  "The information is not available in the provided context. Please upload a PDF first."
 - Do NOT guess or hallucinate.
 - Keep answers clear, concise, and factual.
-- When answering, ALWAYS cite the source(s) explicitly using the format:
+- If the answer contains code parts, ALWAYS use the following format:
+<code>
+</code>
+- DO NOT provide answers contains latex parts.
+- When answering, ALWAYS cite the source(s) explicitly using:
+
   ${uploadedDocuments
     .filter((doc) => doc && doc.filename)
     .map((doc, i) => `Source ${i + 1}: ${doc.filename}`)
     .join(", ")}
-
+- When mention sources, ALWAYS give the source name.
 Do not mention sources that are not relevant to the answer.`,
       },
+      ...conversationHistory,
       {
         role: "user",
         content: `Context:\n${context}\n\nQuestion: ${queryText}`,
