@@ -46,7 +46,7 @@ const HowItWorks = () => {
             <span className="text-[#36e27b]">Get Instant Clarity.</span>
           </h2>
           <p className="text-white/60 text-lg">
-            Our AI uses Retrieval-Augmented Generation to deeply understand your
+            Codexa uses Retrieval-Augmented Generation to deeply understand your
             code and provide accurate, context-aware explanations.
           </p>
         </div>
@@ -104,7 +104,7 @@ const HowItWorks = () => {
                 AI Processes & Indexes
               </h3>
               <p className="text-white/60 leading-relaxed">
-                Our RAG engine intelligently chunks your code, creates
+                The RAG engine intelligently chunks your code, creates
                 embeddings, and indexes it for lightning-fast semantic search
                 and retrieval.
               </p>

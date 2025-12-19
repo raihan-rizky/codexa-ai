@@ -29,7 +29,7 @@ const About = () => {
               diversity_3
             </span>
             <span className="text-sm font-medium text-[#36e27b] relative z-10">
-              Our Mission
+              My Mission
             </span>
           </div>
           <style>{`
@@ -43,27 +43,27 @@ const About = () => {
             }
           `}</style>
           <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight mb-6 max-w-4xl mx-auto">
-            {"We're building a world where anyone can "}
+            {"Building a world where anyone can "}
             <span className="text-[#36e27b]">understand any code</span>
           </h2>
           <p className="text-white/70 text-lg max-w-3xl mx-auto leading-relaxed">
             Codexa uses Conversational AI to help developers, students, and
-            curious minds understand complex code instantly. We make
-            expert-level code explanations accessible to everyone, anytime.
+            curious minds understand complex code instantly. I make expert-level
+            code explanations accessible to everyone, anytime.
           </p>
         </div>
 
-        {/* Our Story */}
+        {/* My Story */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
-          <div className="flex flex-col justify-center">
+          <div className="flex flex-col text-justify justify-center">
             <h3 className="text-2xl md:text-3xl font-bold text-white mb-6">
-              Our Story
+              My Story
             </h3>
             <div className="space-y-4 text-white/70 leading-relaxed">
               <p>
-                We started Codexa because understanding code is hard. Whether
-                you{"'"}re a student learning to program, a developer joining a
-                new team, or someone trying to understand a complex codebase—you
+                I started Codexa because understanding code is hard. Whether you
+                {"'"}re a student learning to program, a developer joining a new
+                team, or someone trying to understand a complex codebase—you
                 deserve clarity.
               </p>
               <p>
@@ -75,14 +75,14 @@ const About = () => {
                 <span className="text-[#36e27b] font-semibold">
                   AI changes this.
                 </span>{" "}
-                With RAG-powered analysis, we can now help thousands understand
-                code at once. Upload any file, ask any question, get instant
-                clarity.
+                With RAG-powered analysis, Codexa can now help thousands
+                understand code at once. Upload any file, ask any question, get
+                instant clarity.
               </p>
               <p>
                 Today, Codexa is building the platform where code understanding
-                is no longer a barrier. {"We're"} creating a world where
-                learning from the best is no longer a privilege—
+                is no longer a barrier. {"I'm"} creating a world where learning
+                from the best is no longer a privilege—
                 {"it's"} a reality for everyone.
               </p>
             </div>
