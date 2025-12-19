@@ -13,5 +13,12 @@
     "build:server": "echo 'No build step needed for server'",
     "start:web": "node apps/web/start.js",
     "start:server": "node apps/server/server.js"
+  },
+  "dependencies": {
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "react-syntax-highlighter": "^16.1.0",
+    "web": "workspace:^",
+    "workspace": "^0.0.1-preview.2"
   }
 }

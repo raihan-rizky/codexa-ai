@@ -137,11 +137,11 @@ const Sidebar = ({
           </button>
 
           {/* Uploaded Files */}
-          <div className="mb-6">
-            <h3 className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-3 px-2">
+          <div className="mb-6 max-h-[200px] flex flex-col">
+            <h3 className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-3 px-2 flex-shrink-0">
               Uploaded Documents
             </h3>
-            <nav className="flex flex-col gap-1">
+            <nav className="flex flex-col gap-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-[#254632] scrollbar-track-transparent">
               {isLoading ? (
                 Array(3)
                   .fill(0)
@@ -189,7 +189,7 @@ const Sidebar = ({
           </div>
 
           {/* Chat History */}
-          <div className="space-y-6 overflow-y-auto pr-2 flex-1">
+          <div className="overflow-y-auto pr-2 flex-1">
             <div>
               <h3 className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-3 px-2">
                 Chats
@@ -238,23 +238,24 @@ const Sidebar = ({
                 )}
               </nav>
             </div>
+          </div>
 
-            <div>
-              <h3 className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-3 px-2">
-                Quick Actions
-              </h3>
-              <nav className="flex flex-col gap-1">
-                <Link
-                  to="/"
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 text-white/60 hover:text-white transition-colors text-sm font-medium"
-                >
-                  <span className="material-symbols-outlined text-[18px]">
-                    home
-                  </span>
-                  <span className="truncate">Back to Home</span>
-                </Link>
-              </nav>
-            </div>
+          {/* Quick Actions - Fixed at bottom */}
+          <div className="flex-shrink-0 pt-4 border-t border-[#254632]">
+            <h3 className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-3 px-2">
+              Quick Actions
+            </h3>
+            <nav className="flex flex-col gap-1">
+              <Link
+                to="/"
+                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 text-white/60 hover:text-white transition-colors text-sm font-medium"
+              >
+                <span className="material-symbols-outlined text-[18px]">
+                  home
+                </span>
+                <span className="truncate">Back to Home</span>
+              </Link>
+            </nav>
           </div>
         </div>
       </aside>

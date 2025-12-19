@@ -1,14 +1,15 @@
 import { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { FaCopy, FaCheck } from "react-icons/fa";
 import { getSessionKey } from "./actions/session_key";
 import { postJSON } from "../lib/api";
 import Sidebar from "./Sidebar/Sidebar";
-
+import SyntaxHighlighter from "react-syntax-highlighter";
+import { atelierDuneDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import ThreeDot from "react-loading-indicators/ThreeDot";
-
+import { extractText } from "./actions/extractText";
+import { languageMap } from "../lib/language_map";
 const ChatInterface = () => {
   const [session, setSession] = useState(null);
   const [chats, setChats] = useState([]);
@@ -21,59 +22,66 @@ const ChatInterface = () => {
   const [language, setLanguage] = useState("javascript");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
+  const [showErrorPopup, setShowErrorPopup] = useState(false);
+  const [retryAction, setRetryAction] = useState(null); // Function to retry on error
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [isCreatingChat, setIsCreatingChat] = useState(false);
   const [mode, setMode] = useState("code"); // "code" or "rag"
   const [title, setTitle] = useState([]);
   console.log("uploadedFiles", uploadedFiles);
   console.log("title", title);
+
+  // Helper to show error popup with retry action
+  const showError = (message, retryFn = null) => {
+    setError(message);
+    setRetryAction(() => retryFn);
+    setShowErrorPopup(true);
+  };
+
+  // Load session function (reusable for retry)
+  const loadSession = async () => {
+    try {
+      setLoadingSession(true);
+      setError("");
+      setShowErrorPopup(false);
+      const session_key = getSessionKey();
+      const data = await postJSON("/chat/session", { session_key });
+      console.log(`data: ${data} , docs : ${data.docs}`);
+      console.log(typeof data.chats.title);
+      setSession(data.session);
+      setChats(data.chats || []);
+      setActiveChat(data.activeChat);
+      setMessages(data.messages || []);
+      setMode(data.messages[0]?.meta?.mode || "code");
+      setUploadedFiles((prev) => [
+        ...prev,
+        ...data.docs.map((doc) => ({
+          name: doc.filename,
+          chunks: doc.total_chunks,
+        })),
+      ]);
+      setTitle((prev) => [
+        ...prev,
+        ...data.chats.map((doc) => ({
+          title: doc.title,
+        })),
+      ]);
+      console.log(data);
+      console.log("data_docs", data.docs);
+    } catch (e) {
+      showError(e.message, loadSession);
+    } finally {
+      setLoadingSession(false);
+    }
+  };
+
   // Init: load session + chats + activeChat + messages + list documents
   useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        setLoadingSession(true);
-        setError("");
-        const session_key = getSessionKey();
-        const data = await postJSON("/chat/session", { session_key });
-        console.log(`data: ${data} , docs : ${data.docs}`);
-        console.log(typeof data.chats.title);
-        if (!mounted) return;
-        setSession(data.session);
-        setChats(data.chats || []);
-        setActiveChat(data.activeChat);
-        setMessages(data.messages || []);
-        setMode(data.messages[0].meta.mode || "code");
-        setUploadedFiles((prev) => [
-          ...prev,
-          ...data.docs.map((doc) => ({
-            name: doc.filename,
-            chunks: doc.total_chunks,
-          })),
-        ]);
-        setTitle((prev) => [
-          ...prev,
-          ...data.chats.map((doc) => ({
-            title: doc.title,
-          })),
-        ]);
-
-        console.log(data);
-        console.log("data_docs", data.docs);
-      } catch (e) {
-        if (!mounted) return;
-        setError(e.message);
-      } finally {
-        if (mounted) setLoadingSession(false);
-      }
-    })();
-
-    return () => {
-      mounted = false;
-    };
+    loadSession();
   }, []);
 
   // Send message to active chat with streaming
@@ -274,14 +282,16 @@ const ChatInterface = () => {
         ...prev,
         {
           type: "ai",
-          content: `✅ **${file.name}** uploaded successfully!\n\nProcessed ${data.chunks} text chunks. You can now switch to **RAG Mode** and ask questions about this code.`,
+          content: `✅ **${file.name}** uploaded successfully!\n\nProcessed ${data.chunks} text chunks. Automatically switch to **RAG Mode**. You can now ask questions about this file code.`,
         },
       ]);
 
       // Auto-switch to RAG mode
       setMode("rag");
     } catch (error) {
-      alert(`Upload failed: ${error.message}`);
+      showError(`Upload failed: ${error.message}`, () =>
+        fileInputRef.current?.click()
+      );
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) {
@@ -293,6 +303,7 @@ const ChatInterface = () => {
   // Create new chat in current session
   const handleNewChat = async () => {
     const session_key = getSessionKey();
+    setIsCreatingChat(true);
     try {
       const data = await postJSON("/chat/new", {
         session_key,
@@ -305,7 +316,9 @@ const ChatInterface = () => {
       setInputValue("");
     } catch (e) {
       console.error("Failed to create new chat:", e);
-      setError(e.message);
+      showError(e.message, handleNewChat);
+    } finally {
+      setIsCreatingChat(false);
     }
   };
 
@@ -320,7 +333,7 @@ const ChatInterface = () => {
       setMessages(data.messages || []);
     } catch (e) {
       console.error("Failed to load chat messages:", e);
-      setError(e.message);
+      showError(e.message, () => openChat(chat));
     }
   };
 
@@ -351,7 +364,7 @@ const ChatInterface = () => {
       }
     } catch (e) {
       console.error("Failed to delete chat:", e);
-      setError(e.message);
+      showError(e.message, null);
     }
   };
 
@@ -375,7 +388,7 @@ const ChatInterface = () => {
       setUploadedFiles((prev) => prev.filter((f) => f.name !== filename));
     } catch (e) {
       console.error("Failed to delete document:", e);
-      setError(e.message);
+      showError(e.message, null);
     }
   };
 
@@ -395,6 +408,96 @@ const ChatInterface = () => {
         onOpenChat={openChat}
         isLoading={loadingSession}
       />
+
+      {/* Error Popup Modal */}
+      {showErrorPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-[#1b3224] border border-red-500/30 rounded-2xl p-6 shadow-2xl shadow-red-500/10 flex flex-col items-center gap-4 max-w-sm mx-4 animate-scaleIn">
+            {/* Error Icon */}
+            <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center">
+              <span className="material-symbols-outlined text-4xl text-red-500">
+                error
+              </span>
+            </div>
+
+            {/* Title */}
+            <h3 className="text-lg font-bold text-white">
+              {retryAction ? "Request Failed" : "Error"}
+            </h3>
+
+            {/* Error Message */}
+            <p className="text-sm text-white/60 text-center">
+              {error || "Something went wrong. Please try again."}
+            </p>
+
+            {/* Buttons */}
+            <div className="flex gap-3 mt-2 w-full">
+              <button
+                onClick={() => {
+                  setShowErrorPopup(false);
+                  setRetryAction(null);
+                }}
+                className="flex-1 px-4 py-2.5 rounded-lg bg-[#254632] text-white/80 font-medium hover:bg-[#2d5a3d] transition-colors text-sm"
+              >
+                {retryAction ? "Cancel" : "Close"}
+              </button>
+              {retryAction && (
+                <button
+                  onClick={() => {
+                    setShowErrorPopup(false);
+                    retryAction();
+                  }}
+                  className="flex-1 px-4 py-2.5 rounded-lg bg-[#36e27b] text-[#122118] font-bold hover:bg-[#2bc968] transition-colors text-sm flex items-center justify-center gap-2"
+                >
+                  <span className="material-symbols-outlined text-lg">
+                    refresh
+                  </span>
+                  Try Again
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Animation styles */}
+          <style>{`
+            @keyframes fadeIn {
+              from { opacity: 0; }
+              to { opacity: 1; }
+            }
+            @keyframes scaleIn {
+              from { opacity: 0; transform: scale(0.9); }
+              to { opacity: 1; transform: scale(1); }
+            }
+            .animate-fadeIn { animation: fadeIn 0.2s ease-out; }
+            .animate-scaleIn { animation: scaleIn 0.3s ease-out; }
+          `}</style>
+        </div>
+      )}
+
+      {/* Loading Popup for Creating New Chat */}
+      {isCreatingChat && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-[#1b3224] border border-[#36e27b]/30 rounded-2xl p-8 shadow-2xl shadow-[#36e27b]/10 flex flex-col items-center gap-4 animate-scaleIn">
+            {/* Animated Spinner */}
+            <div className="relative w-16 h-16">
+              <div className="absolute inset-0 rounded-full border-4 border-[#254632]"></div>
+              <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-[#36e27b] animate-spin"></div>
+              <div
+                className="absolute inset-2 rounded-full border-4 border-transparent border-b-[#36e27b]/50 animate-spin"
+                style={{
+                  animationDirection: "reverse",
+                  animationDuration: "1.5s",
+                }}
+              ></div>
+            </div>
+            {/* Message */}
+            <p className="text-white/90 font-medium text-sm">
+              Creating new chat...
+            </p>
+            <p className="text-white/40 text-xs">Please wait</p>
+          </div>
+        </div>
+      )}
 
       {/* Overlay for mobile sidebar */}
       {sidebarOpen && (
@@ -451,26 +554,9 @@ const ChatInterface = () => {
                 RAG
               </button>
             </div>
-
-            {/* Language Selector (only in code mode) */}
-            {mode === "code" && (
-              <select
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-                className="bg-[#1b3224] border border-[#254632] text-white text-sm rounded-lg px-3 py-1.5 focus:outline-none focus:border-[#36e27b]"
-              >
-                <option value="javascript">JavaScript</option>
-                <option value="python">Python</option>
-                <option value="java">Java</option>
-                <option value="typescript">TypeScript</option>
-                <option value="c++">C++</option>
-                <option value="go">Go</option>
-                <option value="rust">Rust</option>
-              </select>
-            )}
             <button
               onClick={handleNewChat}
-              className="flex items-center gap-1 text-white/60 hover:text-[#36e27b] transition-colors"
+              className="md:hidden flex items-center gap-1 text-white/60 hover:text-[#36e27b] transition-colors"
               title="New Chat"
             >
               <span className="material-symbols-outlined">add_circle</span>
@@ -550,7 +636,7 @@ const ChatInterface = () => {
                   }`}
                 >
                   {message.role !== "user" && (
-                    <span className="material-symbols-outlined text-lg">
+                    <span className="hidden md:block material-symbols-outlined text-lg">
                       smart_toy
                     </span>
                   )}
@@ -580,39 +666,93 @@ const ChatInterface = () => {
                         <Markdown
                           remarkPlugins={[remarkGfm]}
                           components={{
-                            pre: ({ children }) => (
-                              <div className="terminal-container my-3 rounded-lg overflow-hidden border border-[#36e27b]/20 shadow-[0_0_15px_rgba(54,226,123,0.1)] animate-fadeIn">
-                                {/* Terminal Header */}
-                                <div className="flex items-center gap-2 px-3 py-2 bg-[#0d1a12] border-b border-[#254632]">
-                                  <div className="flex gap-1.5">
-                                    <span className="w-3 h-3 rounded-full bg-[#ff5f56] shadow-[0_0_5px_#ff5f56]"></span>
-                                    <span className="w-3 h-3 rounded-full bg-[#ffbd2e] shadow-[0_0_5px_#ffbd2e]"></span>
-                                    <span className="w-3 h-3 rounded-full bg-[#27c93f] shadow-[0_0_5px_#27c93f]"></span>
+                            pre: ({ children }) => {
+                              const codeEl = Array.isArray(children)
+                                ? children[0]
+                                : children;
+                              if (!codeEl?.props) return null;
+
+                              // Ambil isi <code> jadi string murni
+                              const codeString = extractText(
+                                codeEl.props.children
+                              );
+                              console.log("codeString :", codeString);
+                              console.log(
+                                "type of codeString :",
+                                typeof codeString
+                              );
+
+                              const className = codeEl.props.className || "";
+                              const match = /language-([a-z0-9-]+)/i.exec(
+                                className
+                              );
+                              const language = match?.[1] || "text";
+
+                              const terminal_language = languageMap(language);
+                              console.log("codeEl.className:", className);
+                              console.log("language :", language);
+
+                              return (
+                                <div className="terminal-container my-3 rounded-lg overflow-hidden border border-[#36e27b]/20 shadow-[0_0_15px_rgba(54,226,123,0.1)] animate-fadeIn">
+                                  {/* Terminal Header */}
+                                  <div className="flex items-center gap-2 px-3 py-2 bg-[#0d1a12] border-b border-[#254632]">
+                                    <div className="flex gap-1.5">
+                                      <span className="w-3 h-3 rounded-full bg-[#ff5f56] shadow-[0_0_5px_#ff5f56]" />
+                                      <span className="w-3 h-3 rounded-full bg-[#ffbd2e] shadow-[0_0_5px_#ffbd2e]" />
+                                      <span className="w-3 h-3 rounded-full bg-[#27c93f] shadow-[0_0_5px_#27c93f]" />
+                                    </div>
+                                    <span className="ml-2 text-[10px] text-white/40 font-mono">
+                                      {terminal_language}
+                                    </span>
                                   </div>
-                                  <span className="ml-2 text-[10px] text-white/40 font-mono">
-                                    terminal
-                                  </span>
+
+                                  {/* Terminal Body */}
+                                  <div className="relative max-w-full overflow-x-auto bg-[#0a1510] p-4 font-mono">
+                                    <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent" />
+                                    <SyntaxHighlighter
+                                      language={language}
+                                      style={atelierDuneDark}
+                                      customStyle={{
+                                        margin: 0,
+                                        background: "transparent",
+                                        padding: 0,
+                                      }}
+                                      codeTagProps={{
+                                        className:
+                                          "font-mono text-xs text-white",
+                                      }}
+                                    >
+                                      {codeString}
+                                    </SyntaxHighlighter>
+                                  </div>
                                 </div>
-                                {/* Terminal Body */}
-                                <pre className="relative max-w-full overflow-x-auto bg-[#0a1510] p-4 text-[#36e27b] font-mono">
-                                  <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none"></div>
-                                  {children}
-                                </pre>
-                              </div>
-                            ),
-                            code: ({ inline, children }) =>
-                              inline ? (
-                                <code className="bg-[#36e27b]/10 text-[#36e27b] px-1.5 py-0.5 rounded border border-[#36e27b]/20 text-xs font-mono">
-                                  {children}
+                              );
+                            },
+
+                            code: ({ inline, children, ...props }) => {
+                              // ⛔ penting: block code biarkan pre yang handle (hindari double render)
+                              if (inline) {
+                                return (
+                                  <code className=" whitespace-pre text-xs text-[#36e27b] relative">
+                                    {" "}
+                                    <span className="inline-block animate-pulse">
+                                      {" "}
+                                      {" >"}{" "}
+                                    </span>{" "}
+                                    {children}{" "}
+                                  </code>
+                                );
+                              }
+
+                              return (
+                                <code
+                                  className="bg-[#36e27b]/10 text-[#36e27b] px-1.5 py-0.5 rounded border border-[#36e27b]/20 text-xs font-mono"
+                                  {...props}
+                                >
+                                  {extractText(children)}
                                 </code>
-                              ) : (
-                                <code className="block whitespace-pre text-xs text-[#36e27b] relative">
-                                  <span className="inline-block animate-pulse">
-                                    {">"}
-                                  </span>
-                                  {children}
-                                </code>
-                              ),
+                              );
+                            },
                           }}
                         >
                           {message.content}
@@ -714,9 +854,27 @@ const ChatInterface = () => {
                       upload_file
                     </span>
                   </button>
-                  <span className="text-xs text-white/40 px-2">
-                    {mode === "rag" ? "RAG MODE" : language.toUpperCase()}
-                  </span>
+
+                  {/* Language Selector (only in code mode) */}
+                  {mode === "code" && (
+                    <select
+                      value={language}
+                      onChange={(e) => setLanguage(e.target.value)}
+                      className="bg-[#0d1a12] border border-[#254632] text-white text-xs rounded-lg px-2 py-1.5 focus:outline-none focus:border-[#36e27b]"
+                    >
+                      <option value="javascript">JavaScript</option>
+                      <option value="python">Python</option>
+                      <option value="java">Java</option>
+                      <option value="typescript">TypeScript</option>
+                      <option value="c++">C++</option>
+                      <option value="go">Go</option>
+                      <option value="rust">Rust</option>
+                    </select>
+                  )}
+
+                  {mode === "rag" && (
+                    <span className="text-xs text-white/40 px-2">RAG MODE</span>
+                  )}
                 </div>
                 <button
                   type="submit"
