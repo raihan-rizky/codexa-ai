@@ -531,27 +531,59 @@ const ChatInterface = () => {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            {/* Mode Toggle */}
-            <div className="flex items-center gap-1 bg-[#1b3224] rounded-lg p-1 border border-[#254632]">
+            {/* Mode Toggle with Animation */}
+            <div className="relative flex items-center gap-1 bg-[#1b3224] rounded-lg p-1 border border-[#254632]">
+              {/* Sliding Background Indicator */}
+              <div
+                className={`absolute top-1 bottom-1 w-[calc(50%-2px)] rounded-md transition-all duration-300 ease-out ${
+                  mode === "code" ? "left-1" : "left-[calc(50%+1px)]"
+                } ${
+                  mode === "rag"
+                    ? "bg-gradient-to-r from-[#36e27b] to-[#22d3ee] shadow-[0_0_15px_rgba(54,226,123,0.5)]"
+                    : "bg-[#36e27b]"
+                }`}
+                style={{
+                  animation:
+                    mode === "rag"
+                      ? "pulse-glow 2s ease-in-out infinite"
+                      : "none",
+                }}
+              ></div>
+
               <button
                 onClick={() => setMode("code")}
-                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors ${
+                className={`relative z-10 px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-300 ${
                   mode === "code"
-                    ? "bg-[#36e27b] text-[#122118]"
+                    ? "text-[#122118] scale-105"
                     : "text-white/60 hover:text-white"
                 }`}
               >
-                Code
+                <span className="flex items-center gap-1">
+                  <span className="material-symbols-outlined text-[14px]">
+                    code
+                  </span>
+                  Code
+                </span>
               </button>
+
               <button
                 onClick={() => setMode("rag")}
-                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-colors ${
+                className={`relative z-10 px-3 py-1.5 rounded-md text-xs font-bold transition-all duration-300 ${
                   mode === "rag"
-                    ? "bg-[#36e27b] text-[#122118]"
+                    ? "text-[#122118] scale-105"
                     : "text-white/60 hover:text-white"
                 }`}
               >
-                RAG
+                <span className="flex items-center gap-1">
+                  <span
+                    className={`material-symbols-outlined text-[14px] ${
+                      mode === "rag" ? "animate-pulse" : ""
+                    }`}
+                  >
+                    auto_awesome
+                  </span>
+                  RAG
+                </span>
               </button>
             </div>
             <button
@@ -565,7 +597,7 @@ const ChatInterface = () => {
         </header>
 
         {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-10 scroll-smooth">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-10 scroll-smooth custom-scrollbar">
           <div className="max-w-[20rem] md:max-w-[30rem] lg:max-w-[40rem] xl:max-w-[50rem]  mx-auto flex flex-col gap-8">
             {/* Welcome Message */}
             {messages.length === 0 && (
@@ -629,14 +661,14 @@ const ChatInterface = () => {
               >
                 {/* Avatar */}
                 <div
-                  className={`flex-shrink-0 w-8 h-8 rounded-full mt-1 ${
+                  className={`hidden md:flex flex-shrink-0 w-8 h-8 rounded-full mt-1 ${
                     message.role === "user"
                       ? "bg-gradient-to-br from-[#36e27b] to-[#1b3224] border border-[#254632]"
                       : "bg-[#36e27b]/10 flex items-center justify-center text-[#36e27b]"
                   }`}
                 >
                   {message.role !== "user" && (
-                    <span className="hidden md:block material-symbols-outlined text-lg">
+                    <span className="hidden material-symbols-outlined text-lg">
                       smart_toy
                     </span>
                   )}
@@ -644,10 +676,10 @@ const ChatInterface = () => {
 
                 {/* Message bubble */}
                 <div
-                  className={`flex max-w-[70%] md:max-w-[80%] xl:max-w-[88%] flex-col gap-2 ${
+                  className={`flex max-w-[100%] md:max-w-[80%] xl:max-w-[88%] flex-col gap-2 ${
                     message.role === "user"
-                      ? "items-end max-w-[80%]"
-                      : "max-w-2xl"
+                      ? "items-end max-w-[100%]"
+                      : "max-w-3xl"
                   }`}
                 >
                   <div
@@ -896,6 +928,39 @@ const ChatInterface = () => {
           </form>
         </div>
       </main>
+
+      {/* Custom Scrollbar Styles */}
+      <style>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #112117;
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: linear-gradient(180deg, #36e27b40, #254632);
+          border-radius: 10px;
+          border: 1px solid #254632;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(180deg, #36e27b80, #36e27b40);
+          box-shadow: 0 0 10px rgba(54, 226, 123, 0.4);
+        }
+        .custom-scrollbar {
+          scrollbar-width: thin;
+          scrollbar-color: #36e27b40 #112117;
+        }
+        
+        @keyframes pulse-glow {
+          0%, 100% {
+            box-shadow: 0 0 15px rgba(54, 226, 123, 0.5);
+          }
+          50% {
+            box-shadow: 0 0 25px rgba(54, 226, 123, 0.8), 0 0 40px rgba(34, 211, 238, 0.4);
+          }
+        }
+      `}</style>
     </div>
   );
 };

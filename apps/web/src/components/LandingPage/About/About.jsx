@@ -206,7 +206,7 @@ const About = () => {
                     {/* Social Links Placeholder */}
                     <div className="flex items-center gap-4 mt-6 pt-4 border-t border-white/10">
                       <a
-                        href="#"
+                        href="https://github.com/raihan-rizky"
                         className="text-white/40 hover:text-[#36e27b] transition-colors"
                       >
                         <svg
@@ -218,7 +218,7 @@ const About = () => {
                         </svg>
                       </a>
                       <a
-                        href="#"
+                        href="https://www.linkedin.com/in/raihan-rizki/"
                         className="text-white/40 hover:text-[#22d3ee] transition-colors"
                       >
                         <svg
@@ -230,7 +230,7 @@ const About = () => {
                         </svg>
                       </a>
                       <a
-                        href="#"
+                        href="https://x.com/raihnrz"
                         className="text-white/40 hover:text-[#a855f7] transition-colors"
                       >
                         <svg

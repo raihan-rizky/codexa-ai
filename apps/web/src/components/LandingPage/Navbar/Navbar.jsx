@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-
 const Navbar = () => {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -52,14 +51,20 @@ const Navbar = () => {
                   />
                 ))
             : ["Features", "How it Works", "About"].map((item) => (
-                <a
+                <button
                   key={item}
-                  className="group relative text-sm font-medium text-white/80 hover:text-white transition-colors animate-fadeIn"
-                  href={`#${item.toLowerCase().replace(/\s+/g, "-")}`}
+                  onClick={() => {
+                    const id = item.toLowerCase().replace(/\s+/g, "-");
+                    const el = document.getElementById(id);
+                    if (el) {
+                      el.scrollIntoView({ behavior: "smooth" });
+                    }
+                  }}
+                  className="group relative text-sm font-medium text-white/80 hover:text-white transition-colors animate-fadeIn bg-transparent border-none cursor-pointer"
                 >
                   {item}
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#36e27b] transition-all group-hover:w-full"></span>
-                </a>
+                </button>
               ))}
         </nav>
 

@@ -164,7 +164,7 @@ Your ONLY responsibility is to explain programming-related code
 Rules:
 - Only answer questions related to programming or source code.
 - If the user asks about anything outside programming or code,
-  respond exactly with: "itu di luar informasi saya".
+  respond exactly with: "It is outside my information, please ask something else".
 - Do NOT add extra explanations when rejecting.
 - When explaining code, break down each syntax and explain what it does.
 - Keep explanations concise, clear, and beginner-friendly.`,
@@ -464,9 +464,18 @@ app.post("/api/chat/send", async (req, res) => {
         messages: [
           {
             role: "system",
-            content: `You are a helpful code assistant. Explain the following ${
-              language || "code"
-            } code in a clear, educational manner. Focus on what the code does, how it works, and any important concepts.`,
+            content: `You are a helpful code assistant.
+
+Your ONLY responsibility is to explain programming-related code
+(such as JavaScript, Python, C++, etc.) in simple, beginner-friendly language.
+
+Rules:
+- Only answer questions related to programming or source code.
+- If the user asks about anything outside programming or code,
+  respond exactly with: "It is outside my information, please ask something else".
+- Do NOT add extra explanations when rejecting.
+- When explaining code, break down each syntax and explain what it does.
+- Keep explanations concise, clear, and beginner-friendly.`,
           },
           { role: "user", content: message },
         ],
@@ -552,9 +561,18 @@ app.post("/api/chat/send-stream", async (req, res) => {
         messages: [
           {
             role: "system",
-            content: `You are a helpful code assistant. Explain the following ${
-              language || "code"
-            } code in a clear, educational manner. Focus on what the code does, how it works, and any important concepts.`,
+            content: `You are a helpful code assistant.
+
+Your ONLY responsibility is to explain programming-related code
+(such as JavaScript, Python, C++, etc.) in simple, beginner-friendly language.
+
+Rules:
+- Only answer questions related to programming or source code.
+- If the user asks about anything outside programming or code,
+  respond exactly with: "It is outside my information, please ask something else".
+- Do NOT add extra explanations when rejecting.
+- When explaining code, break down each syntax and explain what it does.
+- Keep explanations concise, clear, and beginner-friendly.`,
           },
           { role: "user", content: message },
         ],

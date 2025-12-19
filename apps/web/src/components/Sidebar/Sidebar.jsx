@@ -141,7 +141,7 @@ const Sidebar = ({
             <h3 className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-3 px-2 flex-shrink-0">
               Uploaded Documents
             </h3>
-            <nav className="flex flex-col gap-1 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-[#254632] scrollbar-track-transparent">
+            <nav className="flex flex-col gap-1 overflow-y-auto pr-1 custom-scrollbar">
               {isLoading ? (
                 Array(3)
                   .fill(0)
@@ -171,7 +171,7 @@ const Sidebar = ({
                     </span>
                     <button
                       onClick={() => onDeleteDocument(file.name)}
-                      className="opacity-0 group-hover:opacity-100 text-white/40 hover:text-red-400 transition-opacity"
+                      className="opacity-60 group-hover:opacity-100 text-white/40 hover:text-red-400 transition-opacity"
                       title="Delete document"
                     >
                       <span className="material-symbols-outlined text-[16px]">
@@ -189,7 +189,7 @@ const Sidebar = ({
           </div>
 
           {/* Chat History */}
-          <div className="overflow-y-auto pr-2 flex-1">
+          <div className="overflow-y-auto pr-2 flex-1 custom-scrollbar">
             <div>
               <h3 className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-3 px-2">
                 Chats
@@ -222,7 +222,7 @@ const Sidebar = ({
                       </span>
                       <button
                         onClick={(e) => onDeleteChat(chat.id, e)}
-                        className="opacity-0 group-hover:opacity-100 text-white/40 hover:text-red-400 transition-opacity"
+                        className="opacity-60 group-hover:opacity-100 text-white/40 hover:text-red-400 transition-opacity"
                         title="Delete chat"
                       >
                         <span className="material-symbols-outlined text-[16px]">
@@ -258,6 +258,30 @@ const Sidebar = ({
             </nav>
           </div>
         </div>
+
+        {/* Custom Scrollbar Styles */}
+        <style>{`
+          .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+            border-radius: 10px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #36e27b40, #254632);
+            border-radius: 10px;
+            border: 1px solid #254632;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #36e27b80, #36e27b40);
+            box-shadow: 0 0 8px rgba(54, 226, 123, 0.3);
+          }
+          .custom-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: #36e27b40 transparent;
+          }
+        `}</style>
       </aside>
     </>
   );
