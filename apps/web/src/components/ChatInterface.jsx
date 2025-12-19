@@ -416,13 +416,13 @@ const ChatInterface = () => {
               <span className="material-symbols-outlined">menu</span>
             </button>
             <div className="flex flex-col">
-              <h1 className="text-base font-bold text-white flex items-center gap-2">
+              <h1 className="text-base text-sm hidden md:block lg:text-xl font-bold text-white flex items-center gap-2">
                 {mode === "rag" ? "Document Q&A" : "Code Explainer"}
                 <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#36e27b]/10 text-[#36e27b] border border-[#36e27b]/20 hidden md:block">
                   {mode === "rag" ? "RAG Mode" : "Llama 3.3 70B"}
                 </span>
               </h1>
-              <p className="text-xs text-white/50">
+              <p className="text-xs hidden md:block lg:text-sm text-white/50">
                 {messages.length} messages
               </p>
             </div>
@@ -470,7 +470,7 @@ const ChatInterface = () => {
             )}
             <button
               onClick={handleNewChat}
-              className="text-white/60 hover:text-[#36e27b] transition-colors"
+              className="flex items-center gap-1 text-white/60 hover:text-[#36e27b] transition-colors"
               title="New Chat"
             >
               <span className="material-symbols-outlined">add_circle</span>
