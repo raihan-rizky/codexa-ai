@@ -71,14 +71,14 @@ export async function initEmbeddingModel() {
   if (embeddingPipeline) return embeddingPipeline;
 
   console.log(
-    "[EMBEDDING] 🔄 Loading Supabase/gte-small model (first time only)..."
+    "[EMBEDDING] 🔄 Loading Xenova/multilingual-e5-small (first time only)..."
   );
   const startLoad = Date.now();
 
   try {
     embeddingPipeline = await pipeline(
       "feature-extraction",
-      "Supabase/gte-small"
+      "Xenova/multilingual-e5-small"
     );
     console.log(
       `[EMBEDDING] ✓ Model loaded successfully in ${Date.now() - startLoad}ms`
@@ -94,7 +94,7 @@ export async function initEmbeddingModel() {
 }
 
 /**
- * Generate embeddings using Supabase/gte-small model (384 dimensions)
+ * Generate embeddings using Xenova/multilingual-e5-small (384 dimensions)
  */
 async function getEmbedding(text) {
   console.log("[EMBEDDING] Generating embedding for text chunk...");
