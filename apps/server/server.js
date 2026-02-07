@@ -124,10 +124,14 @@ app.use((req, res, next) => {
 app.use(helmet());
 console.log("[MIDDLEWARE] ✓ Helmet (security headers) configured");
 
+app.set("trust proxy", 1);
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, //15 menit window
-  max: 100, // maksimal 100 request per IP adress
-  message: "Too many requests from this IP, please try again after some time",
+  windowMs: 15 * 60 * 1000, // 15 menit
+  max: 100, // Limit tiap IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  // TAMBAHIN INI buat matiin warning/error ValidationError tadi
+  validate: { xForwardedForHeader: false },
 });
 
 app.use(limiter);
