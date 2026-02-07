@@ -8,7 +8,7 @@ import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import multer from "multer";
 
 console.log(
-  "[IMPORT] ✓ Core dependencies loaded (express, cors, helmet, rate-limit, multer, langchain)"
+  "[IMPORT] ✓ Core dependencies loaded (express, cors, helmet, rate-limit, multer, langchain)",
 );
 import {
   ensureSession,
@@ -61,7 +61,7 @@ console.log("[STARTUP] 🧠 Preloading embedding model...");
 initEmbeddingModel()
   .then(() => console.log("[STARTUP] ✓ Embedding model preloaded"))
   .catch((err) =>
-    console.error("[STARTUP] ⚠️ Failed to preload model:", err.message)
+    console.error("[STARTUP] ⚠️ Failed to preload model:", err.message),
   );
 
 // Configure multer for code file uploads
@@ -79,9 +79,9 @@ const upload = multer({
     } else {
       cb(
         new Error(
-          "Only code files (.py, .js, .jsx, .cpp, .go, .rs) are allowed"
+          "Only code files (.py, .js, .jsx, .cpp, .go, .rs) are allowed",
         ),
-        false
+        false,
       );
     }
   },
@@ -133,7 +133,7 @@ app.use((req, res, next) => {
     try {
       console.log(
         "[BODY]",
-        JSON.stringify(req.body, null, 2).substring(0, 500) + "..."
+        JSON.stringify(req.body, null, 2).substring(0, 500) + "...",
       );
     } catch (e) {
       console.log("[BODY] (Could not stringify body, likely binary/multipart)");
@@ -228,7 +228,7 @@ app.post("/api/upload-code", upload.single("code"), async (req, res) => {
     const result = await uploadDocument(
       req.file.buffer,
       req.file.originalname,
-      session.id
+      session.id,
     );
     //console.log("result", result);
     if (result.success == false) {
@@ -541,7 +541,7 @@ app.post("/api/chat/send-stream", async (req, res) => {
     }));
     console.log(
       "conversation history exist :",
-      conversationHistory ? "yes" : "no"
+      conversationHistory ? "yes" : "no",
     );
     console.log("conversation history content", conversationHistory);
 
@@ -557,7 +557,7 @@ app.post("/api/chat/send-stream", async (req, res) => {
 
     // Send user message confirmation
     res.write(
-      `data: ${JSON.stringify({ type: "user_saved", message: userMsg })}\n\n`
+      `data: ${JSON.stringify({ type: "user_saved", message: userMsg })}\n\n`,
     );
 
     let fullAiText = "";
@@ -569,14 +569,14 @@ app.post("/api/chat/send-stream", async (req, res) => {
         message,
         chat_id,
         5,
-        conversationHistory
+        conversationHistory,
       );
 
       // Handle case where no documents found
       if (ragContext.noDocuments) {
         fullAiText = ragContext.noDocsMessage;
         res.write(
-          `data: ${JSON.stringify({ type: "chunk", content: fullAiText })}\n\n`
+          `data: ${JSON.stringify({ type: "chunk", content: fullAiText })}\n\n`,
         );
       } else {
         // Stream LLM response token by token
@@ -588,7 +588,7 @@ app.post("/api/chat/send-stream", async (req, res) => {
           if (content) {
             fullAiText += content;
             res.write(
-              `data: ${JSON.stringify({ type: "chunk", content })}\n\n`
+              `data: ${JSON.stringify({ type: "chunk", content })}\n\n`,
             );
           }
         }
@@ -615,7 +615,7 @@ Rules:
         ...conversationHistory.map((msg) =>
           msg.role === "user"
             ? new HumanMessage(msg.content)
-            : new SystemMessage(msg.content)
+            : new SystemMessage(msg.content),
         ),
         new HumanMessage(message),
       ];
@@ -627,7 +627,7 @@ Rules:
         if (content) {
           fullAiText += content;
           res.write(
-            `data: ${JSON.stringify({ type: "chunk", content })}\\n\\n`
+            `data: ${JSON.stringify({ type: "chunk", content })}\\n\\n`,
           );
         }
       }
@@ -644,13 +644,13 @@ Rules:
 
     // Send completion
     res.write(
-      `data: ${JSON.stringify({ type: "done", message: assistantMsg })}\n\n`
+      `data: ${JSON.stringify({ type: "done", message: assistantMsg })}\n\n`,
     );
     res.end();
   } catch (err) {
     console.error("Chat Stream Error:", err);
     res.write(
-      `data: ${JSON.stringify({ type: "error", error: err.message })}\n\n`
+      `data: ${JSON.stringify({ type: "error", error: err.message })}\n\n`,
     );
     res.end();
   }
@@ -684,3 +684,5 @@ app.listen(PORT, "0.0.0.0", () => {
   console.log(`[SERVER] 📅 Started at: ${new Date().toISOString()}`);
   console.log("=".repeat(60) + "\n");
 });
+
+export default app;
