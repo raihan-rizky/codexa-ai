@@ -1,6 +1,5 @@
 {
   "buildCommand": "yarn workspace web build",
   "outputDirectory": "apps/web/dist",
-  "installCommand": "yarn install",
-  "framework": "vite"
+  "installCommand": "yarn install"
 }
